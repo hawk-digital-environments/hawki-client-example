@@ -1,0 +1,32 @@
+services:
+  example:
+    container_name: ${PROJECT_NAME}-php
+    image: ${PROJECT_NAME}-php:dev
+    build:
+      context: .
+      target: php_dev
+      args:
+        - DOCKER_RUNTIME=${DOCKER_RUNTIME:-docker}
+        - DOCKER_GID=${DOCKER_GID:-1000}
+        - DOCKER_UID=${DOCKER_UID:-1000}
+    restart: no
+    volumes:
+      - ./backend/:/var/www/html
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - default
+      - shared_bridge
+  nginx:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./docker/certs:/etc/nginx/certs
+      - ./docker/nginx/config/nginx.dev${DOCKER_PROJECT_SSL_MARKER:-}.conf:/etc/nginx/nginx.conf:ro
+      - ./public:/var/www/html/public
+    ports:
+      - ${DOCKER_PROJECT_IP:-127.0.0.1}:80:80
+      - ${DOCKER_PROJECT_IP:-127.0.0.1}:443:443
+networks:
+  shared_bridge:
+    name: hawki-client-example-network
+    driver: bridge
