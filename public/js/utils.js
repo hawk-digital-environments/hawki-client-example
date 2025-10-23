@@ -24,7 +24,7 @@ export function showAlert(type, message) {
 
         container.querySelector('#reload-button')
             .addEventListener('click', () => {
-                window.location.hash = '#/';
+                window.location.reload();
             });
 
         return container;

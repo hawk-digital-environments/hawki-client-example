@@ -1,0 +1,98 @@
+additional_context:
+  - type: "git"
+    repository: "https://github.com/hawk-digital-environments/hawki-client"
+    hints:
+      - type:
+          - "relevantForGettingStarted"
+          - "relevantForAbstractions"
+        pattern: "docs/*.md"
+        exclude_pattern:
+          - "docs/bin-env-*.md"
+          - "docs/ci-cd-*.md"
+          - "docs/index.md"
+        description: |
+          The documentation files in this repository provide detailed information on how to get started with the HAWKI Client,
+          including setup instructions, configuration options, and usage examples.
+          They are essential for understanding how to effectively utilize the HAWKI Client in your applications.
+          This is documentation for the implementation of the HAWKI Client itself for your reference.
+  - type: "static"
+    hints:
+      - type:
+          - "relevantForAbstractions"
+          - "relevantForGettingStarted"
+          - "relevantForReadme"
+        content: |
+          When you are running a local HAWKI instance, that is available at e.g. `http://localhost` or `https://hawki.local`,
+          you should set the `HAWKI_URL` environment variable to `http(s)://host.docker.internal`, because
+          the Docker container needs to access the host machine via `host.docker.internal`.
+          
+          ## Creating an external app in HAWKI
+          1. In your HAWKI instance ensure that the `ALLOW_EXTERNAL_COMMUNICATION` and `ALLOW_EXTERNAL_APPS`
+          environment variables are set to `true` in order to allow external clients to connect. (max require a restart of the HAWKI services)
+          
+          2. In your HAWKI cli create a new external app for this example client:
+          ```bash
+          php artisan ext-app:create
+          # or
+          bin/env artisan ext-app:create # If you are using the provided HAWKI docker setup
+          ```
+          
+          3. Answer the questions of the cli prompt:
+            - Name: `HAWKI Client Example`
+            - URL of external app: `http://localhost` (or the URL where you will run this example)
+            - Redirect URL: `http://localhost` (or the URL where you will run this example)
+          The other options can be left as default.
+          A word about the URL and Redirect URL: These URLs must ONLY be available in the browser of the user using the external app.
+          This means, they MUST not be accessible from the HAWKI server directly, because the external app is running
+          outside of HAWKI and the URLs are only relevant for the user's browser to redirect back to the external app.
+          
+          4. The cli will output the generated API Token and Private Key for the external app.
+          **IMPORTANT** Those keys are only shown once, so make sure to copy them and store them securely.
+          
+          5. In the `.env` file of this example set the following variables accordingly:
+          ```env
+          HAWKI_API_TOKEN=<The API Token generated in step 4>
+          HAWKI_PRIVATE_KEY=<The Private Key generated in step 4>
+          ```
+          
+          **IMPORTANT**: The client script requires a running websocket connection(reverb), which in turn requires the queue worker to be running in HAWKI.
+          Make sure to start the queue worker in your HAWKI instance: 
+          ```bash
+          php artisan queue:work
+          # or
+          bin/env dev # If you are using the provided HAWKI docker setup
+          
+          ## Connecting to another Docker compose setup
+          If you have cloned the [HAWKI repository](https://github.com/hawk-digital-environments/HAWKI/tree/main)
+          and started the project using the `docker-compose.yml` file provided there, you can connect
+          you can connect this example to it like this:
+          
+          1. In your local HAWKI clone create a new file `docker-compose.override.yml` with the following content:
+          ```yaml
+          services:
+            nginx:
+              container_name: nginx.hawki.dev # Overrides the default container name to match our example (This is the address we must call from within our container to access hawki now)
+              networks:
+                - default # This is important to keep nginx in the default network of the original HAWKI setup
+                - example # This is the magic, that allows other docker-compose setups to connect to HAWKI
+          networks:
+            example:
+              name: hawki-client-example-network # This network is exposed by the docker-compose.yml of this example.
+              external: true
+          ```
+          What this does is, to tell the HAWKI nginx service to join the `hawki-client-example-network` network, 
+          which is created by this example's `docker-compose.yml`. This way both setups can communicate with each other.
+          
+          2. by default the .env.tpl file is already preconfigured to connect to `https://nginx.hawki.dev`, which is the correct URL
+          to connect to the HAWKI instance IF you used `bin/env install`, which will automatically set up the necessary SSL certificates
+          for `nginx.hawki.dev`. If you did not use `bin/env install`, YOU MUST set the `HAWKI_URL` variable in the `.env` file
+          to use the "http" protocol instead of "https"!
+          If you have changed the domain name in step 1, make sure to update the `HAWKI_URL` variable accordingly.
+
+          3. Now you can start both docker-compose setups and the example should be able to connect to HAWKI.
+          
+          4. Lastly, follow the instructions above in "Creating an external app in HAWKI" to create an external app
+          for this example client. Restart the example client container after updating the `.env` file with the generated keys.
+          
+          5. You should now be able to access the example client at `http://localhost` and authenticate via HAWKI.
+          (If you used `bin/env install` which I highly recommend, simply run `bin/env open` to open the example client in your browser)

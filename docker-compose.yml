@@ -10,6 +10,8 @@ services:
         - DOCKER_GID=${DOCKER_GID:-1000}
         - DOCKER_UID=${DOCKER_UID:-1000}
     restart: no
+    env_file:
+      - .env
     volumes:
       - ./backend/:/var/www/html
     extra_hosts:

@@ -1,4 +1,3 @@
-import {createDebugLogger, createHawkiClient} from '/frontend/hawki-client.js';
 import {setAppContent, showAlert} from '../utils.js';
 
 let client = null;
@@ -16,9 +15,10 @@ export async function handleHawkiClientCreation() {
         return new Promise(() => void 0);
     }
 
-    client = await createHawkiClient({
+    client = await HawkiClient.createHawkiClient({
         type: 'external',
-        logger: createDebugLogger(),
+        // This is obviously completely optional, if you do not want any logging just omit this line
+        logger: HawkiClient.createDebugLogger(),
         clientConfigUrl: '/hawki-client-config',
         onConnectionRequired: async connectionUrl => renderConnectRequest(connectionUrl)
     });
@@ -32,8 +32,6 @@ export async function handleHawkiClientCreation() {
             showAlert('warning', 'Connection to HAWKI lost. Please reload the page.');
         }, 200);
     });
-
-    // await client.sync.all(true);
 }
 
 /**

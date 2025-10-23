@@ -3,8 +3,7 @@
   "description": "A simple example on how to build an app with the external HAWKI access",
   "type": "project",
   "license": "Apache-2.0",
-  "minimum-stability": "dev",
   "require": {
-    "hawk-hhg/hawki-client-backend": "dev-main"
+    "hawk-hhg/hawki-client-backend": "^1.1"
   }
 }
