@@ -23,6 +23,11 @@ The solution is to turn our backend into a **secure configuration broker**. Thin
 
 This is precisely what our backend's `/hawki-client-config` endpoint does. It uses its master secrets, which are safely stored on the server, to request a secure, user-specific configuration from HAWKI and then passes it along to the verified frontend client.
 
+> **Learn more**
+> 
+> To simplify the process of creating the broker, there is a dedicated PHP composer package you can install using `composer require hawk-hhg/hawki-client-backend`.
+> While this chapter covers the basics, if you need to know more, hop over [to the package documentation](https://github.com/hawk-digital-environments/hawki-client-backend-php).
+
 ### The Brokerage Process in Action
 
 Let's follow the entire flow from the frontend's request to the final configuration.
@@ -132,5 +137,3 @@ From the simple [Vanilla JS SPA Architecture & Workflow](vanilla-js-spa-architec
 ## Stepping Beyond the Core: Embracing Infrastructure
 
 With our HAWKI Configuration Broker now securing the bridge between client and server, we turn our gaze outward—to the foundational layer that supports and sustains the entire system. In the next chapter, we'll dive into the nuts-and-bolts of project infrastructure setup and management, ensuring your application scales, deploys, and operates seamlessly in the real world. Get ready to build the bedrock of reliability as we explore [Infrastructure](infrastructure-610545213.md).
-
-
