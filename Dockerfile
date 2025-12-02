@@ -33,13 +33,15 @@ RUN rm -rf /usr/local/etc/php/conf.d/zzz.app.prod.ini
 # Recreate the www-data user and group with the current users id
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y usermod && \
+    apt-get update && apt-get install -y usermod passwd && \
     groupdel -f www-data || true && \
     userdel -r www-data || true && \
     groupadd -g ${DOCKER_GID} www-data && \
-    useradd -u ${DOCKER_UID} -g www-data www-data
+    useradd -u ${DOCKER_UID} -g www-data www-data && \
+    passwd -d www-data && \
+    usermod -a -G sudo www-data
 
-COPY docker/php/php.entrypoint.dev.sh /user/bin/app/entrypoint.local.sh
-RUN chmod 755 /user/bin/app/entrypoint.sh && \
-    chmod 755 /user/bin/app/entrypoint.local.sh
+COPY docker/php/php.entrypoint.dev.sh /usr/bin/app/entrypoint.local.sh
+RUN chmod 755 /usr/bin/app/entrypoint.sh && \
+    chmod 755 /usr/bin/app/entrypoint.local.sh
 USER www-data

@@ -3,8 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>HAWKI - Client - Example Frontend</title>
-    <script type="application/javascript" src="https://unpkg.com/@hawk-hhg/hawki-client@latest/dist/hawki-client.umd.cjs"></script>
-    <script src="js/index.js" type="module"></script>
+    <script>
+        (() => {
+            const localLib = '/library/hawki-client.umd.cjs';
+            const unpkgLib = 'https://unpkg.com/@hawk-hhg/hawki-client@latest/dist/hawki-client.umd.cjs';
+            const indexJs = '/js/index.js';
+            const loadScript = (src, onload) => {
+                const script = document.createElement('script');
+                script.type = 'application/javascript';
+                script.src = src;
+                script.onload = onload;
+                document.head.appendChild(script);
+            }
+            const loadIndexJs = () => {
+                const indexScript = document.createElement('script');
+                indexScript.type = 'module';
+                indexScript.src = indexJs;
+                document.head.appendChild(indexScript);
+            }
+            // First try to load /library/hawki-client.umd.cjs,
+            // If the file is not found (404), load from unpkg.com
+            // Only if the library is loaded, initialize js/index.js
+            fetch(localLib, { method: 'HEAD' })
+                .then(response => loadScript(response.ok ? localLib : unpkgLib, () => loadIndexJs()))
+                .catch(() => loadScript(unpkgLib, () => loadIndexJs()));
+        })();
+    </script>
 </head>
 <body>
 

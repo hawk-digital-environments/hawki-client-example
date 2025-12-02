@@ -98,24 +98,23 @@ Next, you need to tell the example app how to reach your HAWKI instance by setti
 <details>
 <summary><strong>Option A: Connecting to the official HAWKI Docker setup (Recommended)</strong></summary>
 
-If you have cloned the [main HAWKI repository](https://github.com/hawk-digital-environments/HAWKI) and are running it via Docker Compose, you can link it with this example project.
+If you have cloned the [main HAWKI repository](https://github.com/hawk-digital-environments/HAWKI) and are running it via Docker Compose, you can link it with this example project. **NOTE: Currently you need to check out the `feature/external-chat` branch of HAWKI for this to work.**
 
-1.  In your local HAWKI project, create a `docker-compose.override.yml` file with the following content. This allows the two separate Docker Compose projects to communicate over a shared network.
-    ```yaml
-    services:
-      nginx:
-        container_name: nginx.hawki.dev
-        networks:
-          - default
-          - example
-    networks:
-      example:
-        name: hawki-client-example-network
-        external: true
+1.  The HAWKI project opens a Docker network called `hawki_hawk_net` by default. You can connect this example project to that network. The easiest way to do this is look in the root of the example project, where you can find a `docker-compose.hawki-local.yml` file. Simply copy this file to `docker-compose.override.yml`:
+    ```bash
+    cp docker-compose.hawki-local.yml docker-compose.override.yml
     ```
-2.  Restart your HAWKI services (`docker-compose up -d --force-recreate`).
-3.  In this example project's `.env` file, ensure the `HAWKI_URL` is set correctly. The template defaults to `https://nginx.hawki.dev`, which is correct for this setup if you used the HAWKI installer. If not, you may need to use `http://nginx.hawki.dev`.
-
+2.  Ensure your HAWKI instance is running:
+    ```bash
+    cd /path/to/your/hawki/project
+    bin/env up -d
+    ```
+3.  In this example's `.env` file, the `HAWKI_URL` is already set to connect to the HAWKI instance inside the Docker by pointing to: `https://hawki.hawk.docker`. So you only need to need to set `HAWKI_API_TOKEN` and `HAWKI_PRIVATE_KEY` as described in Step 3.
+4. Restart the example's Docker containers to apply the network changes:
+    ```bash
+    bin/env down
+    bin/env up
+    ```
 </details>
 
 <details>
@@ -178,6 +177,22 @@ The `bin/env` helper is your primary tool for managing the project. Here are the
 | `bin/env clean`           | **Destructive!** Stops and removes all containers, networks, volumes, and images associated with the project. |
 
 </details>
+
+### Using a locally built version of `@hawk-hhg/hawki-client`
+
+By default, this example automatically includes the latest released version of the `@hawk-hhg/hawki-client` library from npm 
+using the `unpkg` CDN. However, if you are developing the `hawki-client` library itself and want to test changes locally,
+you can do so by following these steps:
+
+Open your `.env` file and set the `HAWKI_CLIENT_LIB_DIR` variable to point to the local path of your `hawki-client` library:
+
+```env
+HAWKI_CLIENT_LIB_DIR=/path/to/your/local/hawki-client/dist
+```
+
+> The target MUST be the `dist` directory inside your local `hawki-client` project, as it contains the built JavaScript files.
+
+And that is it, really. When you start the example project using `bin/env up`, it will now use your local version of the library instead of fetching it from the CDN. To learn more about how this works, check the [index.html](./public/index.html) file.
 
 ## 📚 Full Tutorial
 

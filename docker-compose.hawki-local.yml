@@ -1,0 +1,9 @@
+services:
+  example:
+    networks:
+      - default
+      - hawki_hawk_net
+networks:
+  hawki_hawk_net:
+    name: hawki_hawk_net
+    external: true
